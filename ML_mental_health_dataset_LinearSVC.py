@@ -10,21 +10,10 @@ from sklearn import svm
 
 
 """
-cercare modello giusto, cambiare randomForestClassifier con quello che funzioni
-sklearn.feature_selection?
-linear SVC?
-
-X = riga fatta da (tutto tranne ID e Menthal_Health_Condition)
-Age,Gender,Sleep_Hours_Per_Day,Work_Hours_Per_Week,Exercise_Frequency_Per_Week,
-Mood_Score (0-100),Anxiety_Score (0-100),Depression_Score (0-100),Stress_Score (0-100),
-Energy_Level (0-100),Social_Interaction (1-10),Concentration (1-10),Appetite (1-10),
-Life_Satisfaction (0-100),Therapy_Sessions_Per_Month,Medication,Family_History,
-Hallucinations,Manic_Episodes_Per_Year
-y = Menthal_Health_Condition
-
 Seguendo il grafico su https://scikit-learn.org/stable/machine_learning_map.html
 ho scelto LinearSVC
 
+accuracy: 93%
 """
 
 df = pd.read_csv('mental_health_dataset.csv')

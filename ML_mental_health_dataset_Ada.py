@@ -4,14 +4,17 @@ import pandas as pd
 import seaborn as sns
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn import svm
-from xgboost import XGBClassifier 
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+
 
 """
-XGBClassifier è il secondo migliore facendo passare l'accuracy da 93% a 96%
-
+AdaBoostClassifier Accuratezza del modello: 0.62
+con grid serarch Best CV accuracy:    0.9625
+                 Test accuracy:       0.9500
 """
 
 df = pd.read_csv('mental_health_dataset.csv')
@@ -40,6 +43,7 @@ FEATURES = [
 X = df[FEATURES]
 y = df['Mental_Health_Condition']
 
+
 # Creiamo i train e test sets
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
@@ -49,7 +53,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Creare l'oggetto modello e dargli i set di train
-model = XGBClassifier()
+model = AdaBoostClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
@@ -62,30 +66,27 @@ print("Classification Report:\n", report)
 cm = confusion_matrix(y_test, y_pred)
 print("matrice di confusioneo matrice di errore\n",cm)
 
-
-
 #gridsearch
 #da fare  i parametri
 param_grid = {
-    # ── Gruppo 1: quantità di apprendimento ──
-    'n_estimators':     [100, 200, 300],
-    'learning_rate':    [0.01, 0.1, 0.2],
+    'n_estimators':  [50, 100, 200],
+    'learning_rate': [0.01, 0.1, 0.5, 1.0],
 
-    # ── Gruppo 2: complessità degli alberi ──
-    'max_depth':        [3, 5, 7],
-    'min_child_weight': [1, 3],
-    'gamma':            [0, 0.1],
-
-    # ── Gruppo 3: campionamento ──
-    'subsample':        [0.8, 1.0],
-    'colsample_bytree': [0.8, 1.0],
+    # Modello base con diverse profondità:
+    # depth=1 → stump classico (default)
+    # depth=2,3 → alberi leggermente più espressivi
+    #             (spesso migliora MOLTO su problemi multiclasse!)
+    'estimator': [
+        DecisionTreeClassifier(max_depth=1),
+        DecisionTreeClassifier(max_depth=2),
+        DecisionTreeClassifier(max_depth=3),
+    ]
 }
 # ─────────────────────────────────────────────────────────────
 # GRIDSEARCH
 # ─────────────────────────────────────────────────────────────
 grid = GridSearchCV(
-    estimator=XGBClassifier(n_estimators=100, random_state=42,
-    eval_metric='mlogloss', verbosity=0),
+    estimator=AdaBoostClassifier(n_estimators=100, random_state=42),
     # max_iter alto → evita warning di non-convergenza
     param_grid=param_grid,
     cv=5,                    # 5-fold cross-validation per ogni combinazione
@@ -93,6 +94,7 @@ grid = GridSearchCV(
     n_jobs=-1,               # usa tutti i core della CPU (parallelo)
     verbose=1                # stampa il progresso
 )
+
 
 grid.fit(X_train, y_train)
 
