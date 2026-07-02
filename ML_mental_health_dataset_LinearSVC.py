@@ -7,10 +7,23 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn import svm
-from xgboost import XGBClassifier 
+
 
 """
-XGBClassifier è il migliore facendo passare l'accuracy da 93% a 96%
+cercare modello giusto, cambiare randomForestClassifier con quello che funzioni
+sklearn.feature_selection?
+linear SVC?
+
+X = riga fatta da (tutto tranne ID e Menthal_Health_Condition)
+Age,Gender,Sleep_Hours_Per_Day,Work_Hours_Per_Week,Exercise_Frequency_Per_Week,
+Mood_Score (0-100),Anxiety_Score (0-100),Depression_Score (0-100),Stress_Score (0-100),
+Energy_Level (0-100),Social_Interaction (1-10),Concentration (1-10),Appetite (1-10),
+Life_Satisfaction (0-100),Therapy_Sessions_Per_Month,Medication,Family_History,
+Hallucinations,Manic_Episodes_Per_Year
+y = Menthal_Health_Condition
+
+Seguendo il grafico su https://scikit-learn.org/stable/machine_learning_map.html
+ho scelto LinearSVC
 
 """
 
@@ -52,9 +65,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Creare l'oggetto modello e dargli i set di train
-model = XGBClassifier()
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+lin_clf = svm.LinearSVC()
+lin_clf.fit(X_train, y_train)
+y_pred = lin_clf.predict(X_test)
 
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuratezza del modello: {accuracy:.2f}")
@@ -65,37 +78,74 @@ print("Classification Report:\n", report)
 cm = confusion_matrix(y_test, y_pred)
 print("matrice di confusioneo matrice di errore\n",cm)
 
-"""plt.figure(figsize=(6,4))  #crea un errore quando chiudi la finestra del grafico se non la fai non va avanti
+plt.figure(figsize=(6,4))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
  xticklabels=le_target.classes_,
  yticklabels=le_target.classes_)
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion Matrix')
-plt.show()"""
+plt.show()
 
 #gridsearch
-#da fare  i parametri
-param_grid = {
-    # ── Gruppo 1: quantità di apprendimento ──
-    'n_estimators':     [100, 200, 300],
-    'learning_rate':    [0.01, 0.1, 0.2],
-
-    # ── Gruppo 2: complessità degli alberi ──
-    'max_depth':        [3, 5, 7],
-    'min_child_weight': [1, 3],
-    'gamma':            [0, 0.1],
-
-    # ── Gruppo 3: campionamento ──
-    'subsample':        [0.8, 1.0],
-    'colsample_bytree': [0.8, 1.0],
+"""
+veloce    
+    
+param_grid_semplice = {
+    'C': [0.001, 0.01, 0.1, 1, 10, 100],
+    'class_weight': [None, 'balanced'],
 }
+# Solo 12 combinazioni, usa i default per il resto
+
+grid = GridSearchCV(
+    svm.LinearSVC(max_iter=10000, random_state=42),
+    param_grid_semplice,
+    cv=5,
+    scoring='accuracy',
+    n_jobs=-1,
+    verbose=1
+)
+grid.fit(X_train, y_train)
+print("Best:", grid.best_params_, "→", grid.best_score_)
+
+
+"""
+# lento
+param_grid = [
+    # ── Combinazione 1: L2 + squared_hinge (la standard) ──
+    {
+        'C':            [0.001, 0.01, 0.1, 1, 10, 100],
+        'penalty':      ['l2'],
+        'loss':         ['squared_hinge'],
+        'dual':         [True, False],       # entrambi validi qui
+        'class_weight': [None, 'balanced'],
+    },
+    # ── Combinazione 2: L2 + hinge (richiede dual=True) ──
+    {
+        'C':            [0.001, 0.01, 0.1, 1, 10, 100],
+        'penalty':      ['l2'],
+        'loss':         ['hinge'],
+        'dual':         [True],              # obbligatorio con hinge
+        'class_weight': [None, 'balanced'],
+    },
+    # ── Combinazione 3: L1 + squared_hinge (richiede dual=False) ──
+    # L1 fa anche feature selection: azzera i coefficienti inutili
+    {
+        'C':            [0.001, 0.01, 0.1, 1, 10, 100],
+        'penalty':      ['l1'],
+        'loss':         ['squared_hinge'],
+        'dual':         [False],             # obbligatorio con l1
+        'class_weight': [None, 'balanced'],
+    },
+]
+# Totale: (6×2×2) + (6×1×2) + (6×1×2) = 24+12+12 = 48 combinazioni
+# Con cv=5 → 48 × 5 = 240 addestramenti (LinearSVC è veloce, ok!)
+
 # ─────────────────────────────────────────────────────────────
 # GRIDSEARCH
 # ─────────────────────────────────────────────────────────────
 grid = GridSearchCV(
-    estimator=XGBClassifier(n_estimators=100, random_state=42,
-    eval_metric='mlogloss', verbosity=0),
+    estimator=svm.LinearSVC(max_iter=10000, random_state=42),
     # max_iter alto → evita warning di non-convergenza
     param_grid=param_grid,
     cv=5,                    # 5-fold cross-validation per ogni combinazione
