@@ -1,20 +1,25 @@
-mental_health_dataset.csv:
-Dataset Originale
+## Struttura del progetto
 
-mhd2.csv:
-Dataset Elaborato
+* **mental_health_dataset.csv**
+  Dataset originale.
 
-01_dataset_exploration.ipynb:
-Esplorazione del dataset con l'aiuto di Pandas
+* **mhd2.csv**
+  Dataset elaborato.
 
-02_dataset_exploration_Spark.ipynb:
-Esplorazione del dataset con l'aiuto di Spark
+* **01_dataset_exploration.ipynb**
+  Esplorazione del dataset con l'aiuto di Pandas.
 
-ML_mental_health_dataset_RandomForest.py
-ML_mental_health_dataset_LinearSVC.py
-ML_mental_health_dataset_Ada.py
-ML_mental_health_dataset_XGBoost.py
-Training e testing di modelli di machine learning sul dataset
+* **02_dataset_exploration_Spark.ipynb**
+  Esplorazione del dataset con l'aiuto di Spark.
 
-ScriptMentalHealthDB.sql:
-Script per la creazione delle tabelle del database
+* **ML_mental_health_dataset_RandomForest.py**
+
+* **ML_mental_health_dataset_LinearSVC.py**
+
+* **ML_mental_health_dataset_Ada.py**
+
+* **ML_mental_health_dataset_XGBoost.py**
+  Script per il training e il testing dei modelli di machine learning sul dataset.
+
+* **ScriptMentalHealthDB.sql**
+  Script per la creazione delle tabelle del database.
