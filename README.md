@@ -12,6 +12,9 @@
 * **02_dataset_exploration_Spark.ipynb**
   Esplorazione del dataset con l'aiuto di Spark.
 
+* **progetto-finale.pbix**
+  Progetto di PowerBI per la creazione di grafici.
+  
 * **ML_mental_health_dataset_RandomForest.py**
 * **ML_mental_health_dataset_LinearSVC.py**
 * **ML_mental_health_dataset_Ada.py**
