@@ -13,12 +13,10 @@
   Esplorazione del dataset con l'aiuto di Spark.
 
 * **ML_mental_health_dataset_RandomForest.py**
-
 * **ML_mental_health_dataset_LinearSVC.py**
-
 * **ML_mental_health_dataset_Ada.py**
-
 * **ML_mental_health_dataset_XGBoost.py**
+  
   Script per il training e il testing dei modelli di machine learning sul dataset.
 
 * **ScriptMentalHealthDB.sql**
